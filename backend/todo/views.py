@@ -2,12 +2,20 @@ from django.contrib.auth.models import User
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from .models import Todo
 from .serializers import TodoSerializer
 
 class TodoViewSet(viewsets.ModelViewSet):
     queryset = Todo.objects.all()
     serializer_class = TodoSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        
+    def get_queryset(self):
+        return Todo.objects.filter(user=self.request.user)
 
 @api_view(['POST'])
 def signup(request):
