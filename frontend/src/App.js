@@ -3,6 +3,8 @@ import axios from 'axios';
 import './index.css';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const BASE_URL = 'https://todo-app-backend-qw9b.onrender.com';
+
 function App() {
   const [todos, setTodos] = useState([]);
   const [title, setTitle] = useState('');
@@ -13,24 +15,24 @@ function App() {
   }, []);
 
   const fetchTodos = async () => {
-    const response = await axios.get('http://localhost:8000/api/todos/');
+    const response = await axios.get(`${BASE_URL}/api/todos/`);
     setTodos(response.data);
   };
 
   const addTodo = async () => {
     if (title.trim() === '') return;
-    await axios.post('http://localhost:8000/api/todos/', { title, completed: false });
+    await axios.post(`${BASE_URL}/api/todos/`, { title, completed: false });
     setTitle('');
     fetchTodos();
   };
 
   const deleteTodo = async (id) => {
-    await axios.delete(`http://localhost:8000/api/todos/${id}/`);
+    await axios.delete(`${BASE_URL}/api/todos/${id}/`);
     fetchTodos();
   };
 
   const toggleComplete = async (todo) => {
-    await axios.put(`http://localhost:8000/api/todos/${todo.id}/`, {
+    await axios.put(`${BASE_URL}/api/todos/${todo.id}/`, {
       title: todo.title,
       completed: !todo.completed,
     });
