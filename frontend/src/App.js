@@ -87,7 +87,8 @@ function App() {
   if (!isLoggedIn) {
     return <Login onLogin={() => {
         setIsLoggedIn(true);
-        fetchTodos();  // ログイン直後にタスク一覧を取り直す！！
+        setTodos([]);  // ★ここでリストをいったんクリア
+        fetchTodos();  // ★ログイン直後にタスク一覧を取り直す！！
     }} />;
   }
 
