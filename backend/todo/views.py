@@ -15,7 +15,7 @@ class TodoViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
         
     def get_queryset(self):
-        return Todo.objects.filter(user=self.request.user)
+        return Todo.objects.filter(user=self.request.user).exclude(user__isnull=True)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

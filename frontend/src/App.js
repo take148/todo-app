@@ -1,126 +1,144 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './index.css';
+import Login from './Login';  // ← さっき作ったLoginコンポーネントをimport
+import './index.css';         // CSSはそのまま
 import { motion, AnimatePresence } from 'framer-motion';
-
-const BASE_URL = 'https://todo-app-backend-qw9b.onrender.com';
 
 function App() {
   const [todos, setTodos] = useState([]);
   const [title, setTitle] = useState('');
-  const [filter, setFilter] = useState('all'); // 👈 追加！フィルター状態を管理
+  const [filter, setFilter] = useState('all');
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 👈 ログイン状態を管理
 
   useEffect(() => {
-    fetchTodos();
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsLoggedIn(true);
+      fetchTodos();
+    }
   }, []);
 
   const fetchTodos = async () => {
-    const response = await axios.get(`${BASE_URL}/api/todos/`);
-    setTodos(response.data);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('https://todo-app-backend-qw9b.onrender.com/api/todos/', {
+        headers: {
+          Authorization: `Token ${token}`
+        }
+      });
+      setTodos(response.data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const addTodo = async () => {
     if (title.trim() === '') return;
-    await axios.post(`${BASE_URL}/api/todos/`, { title, completed: false });
-    setTitle('');
-    fetchTodos();
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post('https://todo-app-backend-qw9b.onrender.com/api/todos/', { title, completed: false }, {
+        headers: {
+          Authorization: `Token ${token}`
+        }
+      });
+      setTitle('');
+      fetchTodos();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const deleteTodo = async (id) => {
-    await axios.delete(`${BASE_URL}/api/todos/${id}/`);
-    fetchTodos();
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`https://todo-app-backend-qw9b.onrender.com/api/todos/${id}/`, {
+        headers: {
+          Authorization: `Token ${token}`
+        }
+      });
+      fetchTodos();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const toggleComplete = async (todo) => {
-    await axios.put(`${BASE_URL}/api/todos/${todo.id}/`, {
-      title: todo.title,
-      completed: !todo.completed,
-    });
-    fetchTodos();
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`https://todo-app-backend-qw9b.onrender.com/api/todos/${todo.id}/`, {
+        title: todo.title,
+        completed: !todo.completed,
+      }, {
+        headers: {
+          Authorization: `Token ${token}`
+        }
+      });
+      fetchTodos();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  // ここでフィルターに応じて表示するリストを作る！
-  const filteredTodos = todos.filter((todo) => {
-    if (filter === 'all') return true;
-    if (filter === 'completed') return todo.completed;
-    if (filter === 'incomplete') return !todo.completed;
-    return true;
-  });
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+  };
+
+  if (!isLoggedIn) {
+    return <Login onLogin={() => setIsLoggedIn(true)} />;
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
-      <h1 className="text-3xl font-bold mb-6">TODOリスト</h1>
-
-      <div className="flex w-full max-w-md gap-2 mb-6">
+    <div className="p-4">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">ToDoリスト</h1>
+        <button onClick={handleLogout} className="bg-red-500 text-white p-2 rounded hover:bg-red-600">
+          ログアウト
+        </button>
+      </div>
+      <div className="flex mb-4">
         <input
-          className="flex-1 p-2 rounded border border-gray-300"
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="タスクを入力"
+          placeholder="タスクを追加"
+          className="border p-2 flex-1"
         />
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          onClick={addTodo}
-        >
+        <button onClick={addTodo} className="ml-2 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
           追加
         </button>
       </div>
-
-      {/* フィルターボタン */}
-      <div className="flex gap-2 mb-6">
-        <button
-          onClick={() => setFilter('all')}
-          className={`px-4 py-2 rounded ${filter === 'all' ? 'bg-blue-500 text-white' : 'bg-white text-blue-500 border border-blue-500'}`}
-        >
-          すべて
-        </button>
-        <button
-          onClick={() => setFilter('incomplete')}
-          className={`px-4 py-2 rounded ${filter === 'incomplete' ? 'bg-blue-500 text-white' : 'bg-white text-blue-500 border border-blue-500'}`}
-        >
-          未完了
-        </button>
-        <button
-          onClick={() => setFilter('completed')}
-          className={`px-4 py-2 rounded ${filter === 'completed' ? 'bg-blue-500 text-white' : 'bg-white text-blue-500 border border-blue-500'}`}
-        >
-          完了
-        </button>
+      <div className="flex mb-4">
+        <button onClick={() => setFilter('all')} className="mr-2 bg-gray-300 p-2 rounded">すべて</button>
+        <button onClick={() => setFilter('completed')} className="mr-2 bg-gray-300 p-2 rounded">完了</button>
+        <button onClick={() => setFilter('incomplete')} className="bg-gray-300 p-2 rounded">未完了</button>
       </div>
 
-      <ul className="w-full max-w-md space-y-2">
-        <AnimatePresence>
-          {filteredTodos.map((todo) => (
-            <motion.li
+      <AnimatePresence>
+        {todos
+          .filter((todo) => {
+            if (filter === 'completed') return todo.completed;
+            if (filter === 'incomplete') return !todo.completed;
+            return true;
+          })
+          .map((todo) => (
+            <motion.div
               key={todo.id}
-              className="flex justify-between items-center p-3 bg-white rounded shadow"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex items-center justify-between bg-white p-4 rounded shadow mb-2"
             >
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={todo.completed}
-                  onChange={() => toggleComplete(todo)}
-                  className="w-5 h-5"
-                />
-                <span className={`${todo.completed ? 'line-through text-gray-400' : ''}`}>
-                  {todo.title}
-                </span>
-              </div>
-              <button
-                className="text-red-500 hover:text-red-700"
-                onClick={() => deleteTodo(todo.id)}
+              <div
+                className={`cursor-pointer ${todo.completed ? 'line-through text-gray-500' : ''}`}
+                onClick={() => toggleComplete(todo)}
               >
-                削除
-              </button>
-            </motion.li>
+                {todo.title}
+              </div>
+              <button onClick={() => deleteTodo(todo)} className="text-red-500">削除</button>
+            </motion.div>
           ))}
-        </AnimatePresence>
-      </ul>
+      </AnimatePresence>
     </div>
   );
 }
