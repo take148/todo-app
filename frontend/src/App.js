@@ -9,6 +9,7 @@ function App() {
   const [title, setTitle] = useState('');
   const [filter, setFilter] = useState('all');
   const [isLoggedIn, setIsLoggedIn] = useState(false); // 👈 ログイン状態を管理
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -19,17 +20,19 @@ function App() {
   }, []);
 
   const fetchTodos = async () => {
+    setLoading(true); // データ取得前にloadingをtrueにする
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token'); // ローカルストレージからトークン取得
       const response = await axios.get('https://todo-app-backend-qw9b.onrender.com/api/todos/', {
         headers: {
-          Authorization: `Token ${token}`
+          Authorization: `Token ${token}`  // ヘッダーにトークンをつけてリクエスト
         }
       });
-      setTodos(response.data);
+      setTodos(response.data);  // 取得したタスクをセット
     } catch (error) {
-      console.error(error);
+      console.error(error);  // エラーがあったら表示
     }
+    setLoading(false); // データ取得後にloadingをfalseにする
   };
 
   const addTodo = async () => {
@@ -93,57 +96,65 @@ function App() {
   }
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">ToDoリスト</h1>
-        <button onClick={handleLogout} className="bg-red-500 text-white p-2 rounded hover:bg-red-600">
-          ログアウト
-        </button>
-      </div>
-      <div className="flex mb-4">
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="タスクを追加"
-          className="border p-2 flex-1"
-        />
-        <button onClick={addTodo} className="ml-2 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-          追加
-        </button>
-      </div>
-      <div className="flex mb-4">
-        <button onClick={() => setFilter('all')} className="mr-2 bg-gray-300 p-2 rounded">すべて</button>
-        <button onClick={() => setFilter('completed')} className="mr-2 bg-gray-300 p-2 rounded">完了</button>
-        <button onClick={() => setFilter('incomplete')} className="bg-gray-300 p-2 rounded">未完了</button>
-      </div>
-
-      <AnimatePresence>
-        {todos
-          .filter((todo) => {
-            if (filter === 'completed') return todo.completed;
-            if (filter === 'incomplete') return !todo.completed;
-            return true;
-          })
-          .map((todo) => (
-            <motion.div
-              key={todo.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex items-center justify-between bg-white p-4 rounded shadow mb-2"
-            >
-              <div
-                className={`cursor-pointer ${todo.completed ? 'line-through text-gray-500' : ''}`}
-                onClick={() => toggleComplete(todo)}
-              >
-                {todo.title}
-              </div>
-              <button onClick={() => deleteTodo(todo)} className="text-red-500">削除</button>
-            </motion.div>
-          ))}
-      </AnimatePresence>
-    </div>
+    <>
+      {loading ? (
+        <div className="flex justify-center items-center h-screen">
+          <p className="text-2xl">Loading...</p>
+        </div>
+      ) : (
+        <div className="p-4">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl font-bold">ToDoリスト</h1>
+            <button onClick={handleLogout} className="bg-red-500 text-white p-2 rounded hover:bg-red-600">
+              ログアウト
+            </button>
+          </div>
+          <div className="flex mb-4">
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="タスクを追加"
+              className="border p-2 flex-1"
+            />
+            <button onClick={addTodo} className="ml-2 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+              追加
+            </button>
+          </div>
+          <div className="flex mb-4">
+            <button onClick={() => setFilter('all')} className="mr-2 bg-gray-300 p-2 rounded">すべて</button>
+            <button onClick={() => setFilter('completed')} className="mr-2 bg-gray-300 p-2 rounded">完了</button>
+            <button onClick={() => setFilter('incomplete')} className="bg-gray-300 p-2 rounded">未完了</button>
+          </div>
+  
+          <AnimatePresence>
+            {todos
+              .filter((todo) => {
+                if (filter === 'completed') return todo.completed;
+                if (filter === 'incomplete') return !todo.completed;
+                return true;
+              })
+              .map((todo) => (
+                <motion.div
+                  key={todo.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex items-center justify-between bg-white p-4 rounded shadow mb-2"
+                >
+                  <div
+                    className={`cursor-pointer ${todo.completed ? 'line-through text-gray-500' : ''}`}
+                    onClick={() => toggleComplete(todo)}
+                  >
+                    {todo.title}
+                  </div>
+                  <button onClick={() => deleteTodo(todo)} className="text-red-500">削除</button>
+                </motion.div>
+              ))}
+          </AnimatePresence>
+        </div>
+      )}
+    </>
   );
 }
 
