@@ -20,63 +20,67 @@ function App() {
   }, []);
 
   const fetchTodos = async () => {
-    setLoading(true); // データ取得前にloadingをtrueにする
+    setLoading(true);
     try {
-      const token = localStorage.getItem('token'); // ローカルストレージからトークン取得
+      const token = localStorage.getItem('token');
       const response = await axios.get('https://todo-app-backend-qw9b.onrender.com/api/todos/', {
-        headers: {
-          Authorization: `Token ${token}`  // ヘッダーにトークンをつけてリクエスト
-        }
+        headers: { Authorization: `Token ${token}` }
       });
-      setTodos(response.data);  // 取得したタスクをセット
+      setTodos(response.data);
     } catch (error) {
-      console.error(error);  // エラーがあったら表示
+      console.error(error);
     }
-    setLoading(false); // データ取得後にloadingをfalseにする
+    setLoading(false);
   };
+  
+  const fetchTodosQuiet = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('https://todo-app-backend-qw9b.onrender.com/api/todos/', {
+        headers: { Authorization: `Token ${token}` }
+      });
+      setTodos(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
 
   const addTodo = async () => {
     if (title.trim() === '') return;
     try {
       const token = localStorage.getItem('token');
-      await axios.post('https://todo-app-backend-qw9b.onrender.com/api/todos/', { title, completed: false }, {
-        headers: {
-          Authorization: `Token ${token}`
-        }
-      });
+      await axios.post('https://todo-app-backend-qw9b.onrender.com/api/todos/', 
+        { title, completed: false }, 
+        { headers: { Authorization: `Token ${token}` } }
+      );
       setTitle('');
-      fetchTodos();
+      fetchTodosQuiet(); // ← ここ！！
     } catch (error) {
       console.error(error);
     }
   };
-
+  
   const deleteTodo = async (id) => {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(`https://todo-app-backend-qw9b.onrender.com/api/todos/${id}/`, {
-        headers: {
-          Authorization: `Token ${token}`
-        }
+        headers: { Authorization: `Token ${token}` }
       });
-      fetchTodos();
+      fetchTodosQuiet(); // ← ここ！！
     } catch (error) {
       console.error(error);
     }
   };
-
+  
   const toggleComplete = async (todo) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`https://todo-app-backend-qw9b.onrender.com/api/todos/${todo.id}/`, {
-        title: todo.title,
-        completed: !todo.completed,
-      }, {
-        headers: {
-          Authorization: `Token ${token}`
-        }
-      });
-      fetchTodos();
+      await axios.put(`https://todo-app-backend-qw9b.onrender.com/api/todos/${todo.id}/`, 
+        { title: todo.title, completed: !todo.completed },
+        { headers: { Authorization: `Token ${token}` } }
+      );
+      fetchTodosQuiet(); // ← ここ！！
     } catch (error) {
       console.error(error);
     }
