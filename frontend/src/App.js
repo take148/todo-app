@@ -61,13 +61,13 @@ function App() {
     }
   };
   
-  const deleteTodo = async (id) => {
+  const deleteTodo = async (todo) => {  // ここもidじゃなくてtodoを受け取ったほうがいい
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`https://todo-app-backend-qw9b.onrender.com/api/todos/${id}/`, {
+      await axios.delete(`https://todo-app-backend-qw9b.onrender.com/api/todos/${todo.id}/`, {
         headers: { Authorization: `Token ${token}` }
       });
-      fetchTodosQuiet(); // ← ここ！！
+      fetchTodosQuiet();
     } catch (error) {
       console.error(error);
     }
