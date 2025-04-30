@@ -162,7 +162,7 @@ function App() {
                     <div className="text-sm">
                       作成: {new Date(todo.created_at).toLocaleDateString()}<br />
                       期限: <span className={
-                        todo.due_date && new Date(todo.due_date) < new NativeAnimation().setHours(0,0,0,0)
+                        todo.due_date && new Date(todo.due_date) < new Date().setHours(0,0,0,0)
                           ? 'text-red-500'
                           : 'text-gray-500'
                       }>
