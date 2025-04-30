@@ -159,9 +159,15 @@ function App() {
                     onClick={() => toggleComplete(todo)}
                   >
                     <div>{todo.title}</div>
-                    <div className="text-sm text-gray-400">
+                    <div className="text-sm">
                       作成: {new Date(todo.created_at).toLocaleDateString()}<br />
-                      期限: {todo.due_date || '未設定'}
+                      期限: <span className={
+                        todo.due_date && new Date(todo.due_date) < new NativeAnimation().setHours(0,0,0,0)
+                          ? 'text-red-500'
+                          : 'text-gray-500'
+                      }>
+                      {todo.due_date || '未設定'}
+                      </span>
                     </div>
                   </div>
                   <button onClick={() => deleteTodo(todo)} className="text-red-500">削除</button>
