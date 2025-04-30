@@ -52,7 +52,7 @@ function App() {
     try {
       const token = localStorage.getItem('token');
       await axios.post('https://todo-app-backend-qw9b.onrender.com/api/todos/', 
-        { title, completed: false, due_date }, 
+        { title, completed: false, duedate }, 
         { headers: { Authorization: `Token ${token}` } }
       );
       setTitle('');
