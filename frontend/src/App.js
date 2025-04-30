@@ -10,6 +10,7 @@ function App() {
   const [filter, setFilter] = useState('all');
   const [isLoggedIn, setIsLoggedIn] = useState(false); // 👈 ログイン状態を管理
   const [loading, setLoading] = useState(false);
+  const [dueDate, setDueDate] = useState(''); // 追加: 期限日を管理するステート
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -55,7 +56,8 @@ function App() {
         { headers: { Authorization: `Token ${token}` } }
       );
       setTitle('');
-      fetchTodosQuiet(); // ← ここ！！
+      setDueDate(''); // 追加: タイトルをクリア
+      fetchTodosQuiet();
     } catch (error) {
       console.error(error);
     }
@@ -121,8 +123,14 @@ function App() {
               placeholder="タスクを追加"
               className="border p-2 flex-1"
             />
+            <input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              className="border p-2"
+            />
             <button onClick={addTodo} className="ml-2 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-              追加
+            追加
             </button>
           </div>
           <div className="flex mb-4">
@@ -150,11 +158,16 @@ function App() {
                     className={`cursor-pointer ${todo.completed ? 'line-through text-gray-500' : ''}`}
                     onClick={() => toggleComplete(todo)}
                   >
-                    {todo.title}
+                    <div>{todo.title}</div>
+                    <div className="text-sm text-gray-400">
+                      作成: {new Date(todo.created_at).toLocaleDateString()}<br />
+                      期限: {todo.due_date || '未設定'}
+                    </div>
                   </div>
                   <button onClick={() => deleteTodo(todo)} className="text-red-500">削除</button>
                 </motion.div>
-              ))}
+              ))
+          }
           </AnimatePresence>
         </div>
       )}

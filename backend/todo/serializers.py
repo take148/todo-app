@@ -4,4 +4,5 @@ from .models import Todo
 class TodoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Todo
-        fields = '__all__' # 全フィールドを対象
+        fields = ['id', 'title', 'completed', 'created_at', 'due_date']
+        read_only_fields = ['created_at']   # 作成日時は読み取り専用
