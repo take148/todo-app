@@ -57,7 +57,12 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'https://todo-app-frontend-ubwr.onrender.com',
+]
 
 ROOT_URLCONF = 'backend.urls'
 
