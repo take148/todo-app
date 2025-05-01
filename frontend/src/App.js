@@ -171,8 +171,8 @@ function App() {
                     onClick={() => toggleComplete(todo)}
                   >
                     <div>{todo.title}</div>
-                    <p className={`text-sm ${todo.priority === 1 ? 'text-red-500' : todo.priority === 2 ? 'text-orange-500' : todo.priority === 3 ? 'text-yellow-500' : 'text-green-500'}`}>
-                      優先度: {todo.priority === 1 ? '最優先' : todo.priority === 2 ? '重要' : todo.priority === 3 ? '普通' : '低'}
+                    <p className="text-xs text-gray-400">'
+                      優先度: {['', '最優先', '重要', '普通', '低'][todo.priority]}
                     </p>
                     <div className="text-sm">
                       作成: {new Date(todo.created_at).toLocaleDateString()}<br />
