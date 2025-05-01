@@ -126,7 +126,7 @@ function App() {
             />
             <select
               value={priority}
-              onChange={(e) => setPriority(e.target.value)}
+              onChange={(e) => setPriority(Number(e.target.value))}
               className="border p-2 ml-2"
             >
               <option value={1}>最優先</option>
@@ -171,7 +171,7 @@ function App() {
                     onClick={() => toggleComplete(todo)}
                   >
                     <div>{todo.title}</div>
-                    <p className="text-xs text-gray-400">'
+                    <p className="text-xs text-gray-400">
                       優先度: {['', '最優先', '重要', '普通', '低'][todo.priority]}
                     </p>
                     <div className="text-sm">
