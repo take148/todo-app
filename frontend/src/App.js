@@ -11,6 +11,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // 👈 ログイン状態を管理
   const [loading, setLoading] = useState(false);
   const [dueDate, setDueDate] = useState(''); // 追加: 期限日を管理するステート
+  const [priority, setPriority] = useState(3); // 優先度初期値=普通
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -52,7 +53,7 @@ function App() {
     try {
       const token = localStorage.getItem('token');
       await axios.post('https://todo-app-backend-qw9b.onrender.com/api/todos/', 
-        { title, completed: false, due_date: dueDate }, 
+        { title, completed: false, due_date: dueDate, priority }, // 追加: 期限日と優先度を送信
         { headers: { Authorization: `Token ${token}` } }
       );
       setTitle('');
@@ -123,6 +124,16 @@ function App() {
               placeholder="タスクを追加"
               className="border p-2 flex-1"
             />
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+              className="border p-2 ml-2"
+            >
+              <option value={1}>最優先</option>
+              <option value={2}>重要</option>
+              <option value={3}>普通</option>
+              <option value={4}>低</option>
+            </select>
             <input
               type="date"
               value={dueDate}
@@ -146,6 +157,7 @@ function App() {
                 if (filter === 'incomplete') return !todo.completed;
                 return true;
               })
+              .sort((a, b) => a.priority - b.priority) // 優先度でソート
               .map((todo) => (
                 <motion.div
                   key={todo.id}
